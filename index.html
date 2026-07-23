@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Srozuměno — kontrola smluv před podpisem zdarma</title>
+<meta name="description" content="Nahraj nájemní, pracovní nebo jinou smlouvu a do dvou minut víš, co podepisuješ. Semafor rizik, srozumitelné nálezy a otázky před podpisem. Zdarma díky reklamě." />
+
+<!-- ═══ REKLAMNÍ SÍŤ ═══════════════════════════════════════════
+     Až ti Google AdSense schválí web, vlož SEM (do <head>) jejich
+     kód "AdSense code snippet" (script s client=ca-pub-XXXX).
+     Pro Sklik vlož jejich měřicí kód dle návodu Skliku.
+     Jednotlivé reklamní plochy jsou níže označené class="ad-slot"
+     — do každé vlož kód reklamní jednotky místo zástupného obsahu.
+════════════════════════════════════════════════════════════════ -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#F3F5F4; --card:#fff; --ink:#1C2B33; --ink-soft:#4A5A62;
+    --line:#D8DEDD; --green:#2E7D4F; --green-bg:#E9F3ED;
+    --amber:#B07515; --amber-bg:#FBF3E2; --red:#B23A2E; --red-bg:#F9ECEA;
+    --ad:#EDEFEE;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+  header{display:flex;align-items:baseline;gap:14px;padding:22px 28px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .logo{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:22px}
+  .logo span{color:var(--red)}
+  .hnote{font-size:13px;color:var(--ink-soft);flex:1}
+  main{width:100%;max-width:640px;margin:0 auto;padding:40px 20px;flex:1}
+  h1{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:clamp(26px,4.5vw,38px);line-height:1.2;margin-bottom:16px}
+  .lede{color:var(--ink-soft);line-height:1.6;margin-bottom:28px;max-width:540px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:28px 26px}
+  .drop{border:1.5px dashed var(--line);border-radius:10px;background:var(--card);padding:36px 24px;text-align:center;transition:.15s}
+  .drop.over{border-color:var(--ink);background:#FBFCFB}
+  .btn{background:var(--ink);color:#fff;border:none;border-radius:6px;padding:12px 22px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit}
+  .btn:disabled{opacity:.45;cursor:default}
+  .hint{margin-top:16px;font-size:12.5px;color:var(--ink-soft)}
+  .ad-slot{background:var(--ad);border:1px dashed var(--line);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;margin:16px 0;min-height:110px}
+  .ad-slot.big{min-height:250px}
+  .ad-slot small{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+  .ad-slot .lbl{font-size:13px;color:var(--ink-soft)}
+  .step{padding:7px 0;font-size:14.5px;opacity:.25;transition:opacity .4s}
+  .step.on{opacity:1}
+  .step .m{display:inline-block;width:18px;color:var(--ink-soft)}
+  .step .m.done{color:var(--green)}
+  .eyebrow{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin:22px 0 12px}
+  .stamp{border:2.5px solid;border-radius:6px;padding:8px 14px;font-weight:600;font-size:13px;letter-spacing:.08em;transform:rotate(-3deg);white-space:nowrap}
+  .finding{border-radius:8px;padding:14px 16px;margin-bottom:10px}
+  .f-head{display:flex;align-items:baseline;margin-bottom:6px}
+  .f-name{font-weight:600;font-size:15px;flex:1}
+  .f-lvl{font-size:12.5px;font-weight:600}
+  .f-body{font-size:14.5px;line-height:1.55}
+  .f-cite{font-size:13px;color:var(--ink-soft);margin-top:8px;font-style:italic}
+  .f-law{font-size:12px;color:var(--ink-soft);margin-top:4px}
+  ol.qs{padding-left:20px;display:grid;gap:8px}
+  ol.qs li{line-height:1.5;font-size:14.5px}
+  .disclaimer{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-soft);line-height:1.55}
+  .err{border-left:4px solid var(--red)}
+  .lim{border-left:4px solid var(--amber)}
+  .center{text-align:center}
+  footer{text-align:center;padding:18px 0 26px;font-size:12.5px;color:var(--ink-soft)}
+  footer a{color:var(--ink-soft)}
+  .hidden{display:none}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Srozuměno<span>.</span></div>
+  <div class="hnote">kontrola smluv zdarma · 1 denně</div>
+</header>
+
+<!-- ── OBRAZOVKA: nahrání ─────────────────────────────────────── -->
+<main id="scr-upload">
+  <h1>Nahraj smlouvu.<br />Do dvou minut víš, co podepisuješ.</h1>
+  <p class="lede">Nájemní, pracovní i jiné smlouvy. Zdarma díky reklamě — 1 kontrola denně: semafor rizik, srozumitelné nálezy s oporou v českých zákonech a otázky, které si vyjasni před podpisem.</p>
+  <div class="drop" id="drop">
+    <div style="font-size:28px;color:var(--ink-soft);margin-bottom:10px">⎙</div>
+    <div style="font-weight:500;margin-bottom:18px">Přetáhni sem PDF nebo fotku smlouvy</div>
+    <button class="btn" id="pick">Vybrat soubor</button>
+    <input type="file" id="file" accept=".pdf,.png,.jpg,.jpeg,.webp" style="display:none" />
+    <div class="hint">PDF · JPG · PNG · do 3 MB</div>
+  </div>
+  <!-- AD: banner pod nástrojem — sem vlož kód reklamní jednotky -->
+  <div class="ad-slot"><small>Reklama</small><span class="lbl">Banner pod nástrojem</span></div>
+  <p class="hint">Dokument slouží jen k vytvoření zprávy — neukládá se.</p>
+</main>
+
+<!-- ── OBRAZOVKA: brána před spuštěním ────────────────────────── -->
+<main id="scr-gate" class="hidden">
+  <div class="card center">
+    <div style="font-family:'IBM Plex Serif',serif;font-weight:600;font-size:20px;margin-bottom:4px">Kontrola se připravuje</div>
+    <p style="color:var(--ink-soft);font-size:14.5px;margin-bottom:6px" id="gate-file"></p>
+    <!-- AD: velký formát před spuštěním (300×250) -->
+    <div class="ad-slot big"><small>Reklama</small><span class="lbl">Velký formát před spuštěním</span></div>
+    <!-- AD: doplňkový banner (320×100) -->
+    <div class="ad-slot" style="min-height:90px"><small>Reklama</small><span class="lbl">Doplňkový banner</span></div>
+    <button class="btn" id="gate-btn" disabled>Spustit kontrolu za 6 s</button>
+  </div>
+</main>
+
+<!-- ── OBRAZOVKA: probíhá analýza ─────────────────────────────── -->
+<main id="scr-loading" class="hidden">
+  <div class="card">
+    <div style="font-weight:600;margin-bottom:18px;font-size:15px" id="load-file"></div>
+    <div class="step" data-i="0"><span class="m">·</span>Načítám dokument…</div>
+    <div class="step" data-i="1"><span class="m">·</span>Určuji typ smlouvy a procházím checklist…</div>
+    <div class="step" data-i="2"><span class="m">·</span>Ověřuji zákonné limity v aktuálním znění…</div>
+    <div class="step" data-i="3"><span class="m">·</span>Dokládám nálezy citacemi ze smlouvy…</div>
+    <div class="step" data-i="4"><span class="m">·</span>Sestavuji kontrolní zprávu…</div>
+  </div>
+</main>
+
+<!-- ── OBRAZOVKA: brána před zprávou ──────────────────────────── -->
+<main id="scr-unlock" class="hidden">
+  <div class="card center">
+    <div style="font-family:'IBM Plex Serif',serif;font-weight:600;font-size:20px;margin-bottom:4px">Zpráva je hotová</div>
+    <p style="color:var(--ink-soft);font-size:14.5px;margin-bottom:6px">Zobrazení zprávy je zdarma díky reklamě.</p>
+    <!-- AD: velký formát před zprávou (300×250) -->
+    <div class="ad-slot big"><small>Reklama</small><span class="lbl">Velký formát před zprávou</span></div>
+    <button class="btn" id="unlock-btn" disabled>Zobrazit zprávu za 6 s</button>
+  </div>
+</main>
+
+<!-- ── OBRAZOVKA: zpráva ──────────────────────────────────────── -->
+<main id="scr-report" class="hidden" style="max-width:720px">
+  <div class="card" id="report"></div>
+  <!-- AD: banner pod zprávou -->
+  <div class="ad-slot"><small>Reklama</small><span class="lbl">Banner pod zprávou</span></div>
+  <button class="btn" style="margin-top:8px" onclick="location.reload()">Zkontrolovat další smlouvu</button>
+</main>
+
+<!-- ── OBRAZOVKA: limit / chyba ───────────────────────────────── -->
+<main id="scr-msg" class="hidden">
+  <div class="card" id="msg-card">
+    <div style="font-family:'IBM Plex Serif',serif;font-weight:600;font-size:19px;margin-bottom:8px" id="msg-title"></div>
+    <p style="color:var(--ink-soft);line-height:1.55" id="msg-text"></p>
+    <div class="ad-slot"><small>Reklama</small><span class="lbl">Banner</span></div>
+    <button class="btn" onclick="location.reload()">Zpět na hlavní stránku</button>
+  </div>
+</main>
+
+<footer>© <span id="rok"></span> Srozuměno · Vzdělávací nástroj, ne právní poradenství · <a href="/soukromi.html">Soukromí</a> · <a href="/podminky.html">Podmínky</a></footer>
+
+<script>
+const LEVEL = {
+  zelena:{c:"var(--green)",bg:"var(--green-bg)",l:"V pořádku"},
+  zluta:{c:"var(--amber)",bg:"var(--amber-bg)",l:"Zpozorni"},
+  cervena:{c:"var(--red)",bg:"var(--red-bg)",l:"Problém"}
+};
+const VERDICT = {
+  zelena:{t:"BEZ VÁŽNÝCH RIZIK",c:"var(--green)"},
+  zluta:{t:"PODEPSAT S OBEZŘETNOSTÍ",c:"var(--amber)"},
+  cervena:{t:"NEPODEPISUJ BEZ ÚPRAV",c:"var(--red)"}
+};
+const GATE_S = 6;
+document.getElementById("rok").textContent = new Date().getFullYear();
+
+const scr = (id)=>{["upload","gate","loading","unlock","report","msg"].forEach(s=>
+  document.getElementById("scr-"+s).classList.toggle("hidden", s!==id));window.scrollTo(0,0);};
+const esc = (s)=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let pending=null;
+
+function countdown(btnId, label, done){
+  const btn=document.getElementById(btnId); let c=GATE_S;
+  btn.disabled=true; btn.textContent=`${label} za ${c} s`;
+  const t=setInterval(()=>{ c--;
+    if(c<=0){clearInterval(t);btn.disabled=false;btn.textContent=label;btn.onclick=done;}
+    else btn.textContent=`${label} za ${c} s`;
+  },1000);
+}
+
+function showMsg(title,text,cls){
+  document.getElementById("msg-title").textContent=title;
+  document.getElementById("msg-text").textContent=text;
+  document.getElementById("msg-card").className="card "+(cls||"err");
+  scr("msg");
+}
+
+function choose(file){
+  if(!file) return;
+  const ok=["application/pdf","image/png","image/jpeg","image/webp"];
+  if(!ok.includes(file.type)) return showMsg("Kontrola se nezdařila","Nahraj prosím smlouvu jako PDF nebo fotku (JPG, PNG).");
+  if(file.size>3*1024*1024) return showMsg("Soubor je moc velký","Limit jsou 3 MB. Zkus menší sken nebo jen podstatné stránky smlouvy.");
+  pending=file;
+  document.getElementById("gate-file").textContent=file.name+" · Díky reklamě je Srozuměno zdarma.";
+  scr("gate");
+  countdown("gate-btn","Spustit kontrolu",run);
+}
+
+async function run(){
+  const file=pending; if(!file) return;
+  document.getElementById("load-file").textContent=file.name;
+  scr("loading");
+  let step=0; const steps=[...document.querySelectorAll(".step")];
+  steps.forEach(s=>{s.classList.remove("on");s.querySelector(".m").textContent="·";s.querySelector(".m").className="m";});
+  steps[0].classList.add("on"); steps[0].querySelector(".m").textContent="…";
+  const tick=setInterval(()=>{ if(step<steps.length-1){
+    steps[step].querySelector(".m").textContent="✓";steps[step].querySelector(".m").classList.add("done");
+    step++;steps[step].classList.add("on");steps[step].querySelector(".m").textContent="…";}},3200);
+
+  try{
+    const base64=await new Promise((res,rej)=>{const r=new FileReader();
+      r.onload=()=>res(r.result.split(",")[1]);r.onerror=()=>rej(new Error("Soubor se nepodařilo načíst."));r.readAsDataURL(file);});
+    const resp=await fetch("/api/kontrola",{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({media_type:file.type,data:base64})});
+    const data=await resp.json();
+    clearInterval(tick);
+    if(resp.status===429||data.chyba==="LIMIT")
+      return showMsg("Denní limit vyčerpán",data.zprava||"Zdarma je 1 kontrola denně. Další smlouvu můžeš zkontrolovat zítra.","lim");
+    if(!resp.ok||data.chyba) return showMsg("Kontrola se nezdařila",data.chyba||"Zkus to prosím znovu.");
+    render(data,file.name);
+    scr("unlock");
+    countdown("unlock-btn","Zobrazit kontrolní zprávu",()=>scr("report"));
+  }catch(e){clearInterval(tick);console.error(e);
+    showMsg("Kontrola se nezdařila","Spojení se nezdařilo. Zkontroluj internet a zkus to znovu.");}
+}
+
+function render(rep,fname){
+  const v=VERDICT[rep.celkove_hodnoceni]||{t:"VYHODNOCENO",c:"var(--ink)"};
+  let h=`<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:20px">
+    <div><div class="eyebrow" style="margin-top:0">Kontrolní zpráva</div>
+    <div style="font-family:'IBM Plex Serif',serif;font-weight:600;font-size:24px;line-height:1.2">${esc(rep.typ_smlouvy)}</div>
+    <div style="font-size:12.5px;color:var(--ink-soft);margin-top:4px">${esc(fname)}</div></div>
+    <div class="stamp" style="color:${v.c};border-color:${v.c}">${v.t}</div></div>
+    <p style="line-height:1.6;padding-bottom:20px;border-bottom:1px solid var(--line);margin-bottom:20px">${esc(rep.shrnuti)}</p>
+    <div class="eyebrow">Nálezy</div>`;
+  (rep.nalezy||[]).forEach((n,i)=>{
+    const lv=LEVEL[n.uroven]||LEVEL.zluta;
+    h+=`<div class="finding" style="background:${lv.bg}">
+      <div class="f-head"><span style="color:${lv.c};margin-right:8px">●</span>
+      <span class="f-name">${esc(n.nazev)}</span><span class="f-lvl" style="color:${lv.c}">${lv.l}</span></div>
+      <div class="f-body">${esc(n.vysvetleni)}</div>
+      ${n.citace?`<div class="f-cite">Ve smlouvě: „${esc(n.citace)}“</div>`:""}
+      ${n.pravni_opora?`<div class="f-law">Opora: ${esc(n.pravni_opora)}</div>`:""}</div>`;
+    if((i===1||i===3)&&(rep.nalezy.length>i+1))
+      h+=`<div class="ad-slot"><small>Reklama</small><span class="lbl">Reklama v obsahu zprávy</span></div>`;
+  });
+  if(rep.otazky&&rep.otazky.length){
+    h+=`<div class="eyebrow">Než podepíšeš, zeptej se</div><ol class="qs">`+
+      rep.otazky.map(q=>`<li>${esc(q)}</li>`).join("")+`</ol>`;
+  }
+  h+=`<div class="disclaimer">Tato zpráva je vzdělávací pomůcka pro lepší orientaci ve smlouvě, ne právní poradenství. U zásadních smluv se poraď s advokátem.</div>`;
+  document.getElementById("report").innerHTML=h;
+}
+
+const drop=document.getElementById("drop");
+document.getElementById("pick").onclick=()=>document.getElementById("file").click();
+document.getElementById("file").onchange=(e)=>choose(e.target.files[0]);
+drop.addEventListener("dragover",e=>{e.preventDefault();drop.classList.add("over");});
+drop.addEventListener("dragleave",()=>drop.classList.remove("over"));
+drop.addEventListener("drop",e=>{e.preventDefault();drop.classList.remove("over");choose(e.dataTransfer.files[0]);});
+</script>
+</body>
+</html>
