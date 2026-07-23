@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Srozuměno Plus — kontroly bez limitu, vzory smluv, bez reklam</title>
+<meta name="description" content="Srozuměno Plus za 149 Kč měsíčně nebo 990 Kč ročně: kontroly smluv bez limitu, všech 6 vzorů k vyplnění a tisku, bez reklam a čekání." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/styl.css" />
+</head>
+<body>
+
+<header class="hlava">
+  <a class="logo" href="/">Srozuměno<b>.</b></a>
+  <nav>
+    <a href="/kontrola">Kontrola</a>
+    <a href="/vzory">Vzory smluv</a>
+    <a href="/rady">Rady</a>
+    <a href="/plus" aria-current="page">Plus</a>
+    <a href="/ucet">Účet</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Srozuměno Plus</h1>
+  <p class="lede">Pro každého, kdo řeší víc než jednu smlouvu ročně: kontroly bez limitu a bez čekání, všechny vzory smluv a web bez reklam.</p>
+
+  <div id="hlaska" class="hidden card lim" style="margin-bottom:var(--s3)"><p id="hlaska-text" style="color:var(--ink-soft)"></p></div>
+
+  <div class="plany">
+    <div class="plan">
+      <h3>Měsíčně</h3>
+      <div class="cena">149 Kč <small>/ měsíc</small></div>
+      <ul>
+        <li>Vše z Plus níže</li>
+        <li>Zrušitelné kdykoli</li>
+      </ul>
+      <button class="btn ghost" onclick="koupit('mesic')">Koupit měsíční</button>
+    </div>
+    <div class="plan plus">
+      <h3>Ročně <span style="color:var(--green);font-size:13px">· ušetříš 798 Kč</span></h3>
+      <div class="cena">990 Kč <small>/ rok (82,50 Kč měsíčně)</small></div>
+      <ul>
+        <li>Kontroly smluv bez denního limitu</li>
+        <li>Bez reklam a čekacích bran</li>
+        <li>Všech 6 vzorů smluv k vyplnění a tisku</li>
+        <li>Podrobnější zpráva s návrhy úprav</li>
+        <li>Historie kontrol v účtu</li>
+      </ul>
+      <button class="btn" onclick="koupit('rok')">Koupit roční</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:var(--s3)">
+    <label for="email" style="font-size:12.5px;color:var(--ink-soft)">E-mail pro účet a doklad</label>
+    <input id="email" type="email" placeholder="tvuj@email.cz" style="width:100%;border:1px solid var(--line);border-radius:6px;padding:11px 12px;font-size:15px;font-family:inherit;margin-top:6px" />
+    <p class="hint">Na e-mail ti přijde doklad a přihlašovací odkaz do účtu. Platbu zajišťuje zabezpečená platební brána; údaje o kartě k nám nikdy nedorazí.</p>
+  </div>
+
+  <h2>Časté otázky k Plus</h2>
+  <details><summary>Jak zruším předplatné?</summary><p>Kdykoli v sekci Účet jedním tlačítkem. Zaplacené období doběhne, další platba už neproběhne.</p></details>
+  <details><summary>Dostanu doklad?</summary><p>Ano, potvrzení o platbě přijde automaticky e-mailem od platební brány.</p></details>
+  <details><summary>Funguje Plus na více zařízeních?</summary><p>Ano — přihlas se stejným e-mailem přes sekci Účet a Plus se aktivuje i tam.</p></details>
+</main>
+
+<footer class="pata">
+  <div class="odkazy"><a href="/">Domů</a><a href="/kontrola">Kontrola</a><a href="/vzory">Vzory smluv</a><a href="/podminky">Podmínky</a><a href="/soukromi">Soukromí</a></div>
+  © <span data-rok></span> Srozuměno · Vzdělávací nástroj, ne právní poradenství
+</footer>
+
+<script src="/assets/spolecne.js"></script>
+<script>
+// Návratové stavy z platební brány (?stav=…)
+const q=new URLSearchParams(location.search);
+if(q.get("stav")==="zruseno") ukazHlasku("Platba byla zrušena. Nic se nestalo — můžeš to zkusit znovu, kdykoli budeš chtít.");
+if(q.get("stav")==="neuspech") ukazHlasku("Platbu se nepodařilo ověřit. Pokud ti byly strženy peníze, ozvi se nám přes Kontakt — dáme to do pořádku.");
+
+function ukazHlasku(t){document.getElementById("hlaska-text").textContent=t;document.getElementById("hlaska").classList.remove("hidden");}
+
+async function koupit(tarif){
+  const email=document.getElementById("email").value.trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ukazHlasku("Nejdřív vyplň e-mail — pošleme na něj doklad a přístup k účtu.");document.getElementById("email").focus();return;}
+  try{
+    const r=await fetch("/api/platby?akce=koupit",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({akce:"koupit",tarif,email})});
+    const d=await r.json();
+    if(d.url){location.href=d.url;return;}
+    ukazHlasku(d.chyba||"Platbu se nepodařilo zahájit. Zkus to prosím znovu.");
+  }catch(e){ukazHlasku("Spojení selhalo. Zkontroluj internet a zkus to znovu.");}
+}
+</script>
+</body>
+</html>

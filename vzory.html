@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vzory smluv k vyplnění a tisku — Srozuměno</title>
+<meta name="description" content="Vyplň vzor smlouvy přímo v prohlížeči a rovnou vytiskni: nájemní a podnájemní smlouva, kupní smlouva na auto, DPP, zápůjčka, předávací protokol." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/styl.css" />
+</head>
+<body>
+
+<header class="hlava">
+  <a class="logo" href="/">Srozuměno<b>.</b></a>
+  <nav>
+    <a href="/kontrola">Kontrola</a>
+    <a href="/vzory" aria-current="page">Vzory smluv</a>
+    <a href="/rady">Rady</a>
+    <a href="/plus">Plus</a>
+    <a href="/ucet">Účet</a>
+  </nav>
+</header>
+
+<main class="siroka">
+  <!-- ── SEZNAM ── -->
+  <section id="seznam">
+    <h1>Vzory smluv k vyplnění a tisku</h1>
+    <p class="lede">Vyplň údaje přímo v prohlížeči a smlouvu rovnou vytiskni — bez stahování, bez Wordu. Nájemní smlouva je zdarma, ostatní vzory jsou součástí <a href="/plus">Srozuměno Plus</a>.</p>
+    <div class="mrizka" id="mrizka"></div>
+    <!-- TODO(REKLAMY): banner pod seznamem vzorů -->
+    <div class="ad-slot"><small>Reklama</small><span class="lbl">Banner pod seznamem vzorů</span></div>
+  </section>
+
+  <!-- ── EDITOR ── -->
+  <section id="editor" class="hidden">
+    <h1 id="ed-nazev"></h1>
+    <p class="lede">Piš do polí vlevo, dokument vpravo se doplňuje sám. Tlačítko Vytisknout vytiskne jen čistý dokument.</p>
+    <div class="editor">
+      <div class="formular" id="ed-form"></div>
+      <div>
+        <div class="nahled tisknout"><div class="smlouva" id="ed-nahled"></div>
+          <p class="pozn">Vzor slouží jako obecný základ pro běžné situace a nemusí vyhovovat každému případu. Před podpisem doporučujeme nechat si dokument zkontrolovat — třeba naší <a href="/kontrola">kontrolou</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ZÁMEK PLUS ── -->
+  <section id="zamceno" class="hidden">
+    <div class="card lim">
+      <div style="font-family:'IBM Plex Serif',serif;font-weight:600;font-size:19px;margin-bottom:8px">Tento vzor je součástí Srozuměno Plus</div>
+      <p style="color:var(--ink-soft);line-height:1.6">S Plus získáš všech 6 vzorů k neomezenému vyplňování a tisku, kontroly smluv bez denního limitu a web bez reklam — za 149 Kč měsíčně nebo 990 Kč ročně.</p>
+      <p style="margin-top:var(--s2);display:flex;gap:10px;flex-wrap:wrap">
+        <a class="btn" href="/plus">Chci Plus</a>
+        <button class="btn ghost" onclick="zpet()">← Zpět na vzory</button>
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer class="pata">
+  <div class="odkazy"><a href="/">Domů</a><a href="/kontrola">Kontrola</a><a href="/rady">Rady</a><a href="/plus">Plus</a><a href="/podminky">Podmínky</a><a href="/soukromi">Soukromí</a></div>
+  © <span data-rok></span> Srozuměno · Vzdělávací nástroj, ne právní poradenství
+</footer>
+
+<script src="/assets/spolecne.js"></script>
+<script>
+// ═══ Registr vzorů ═══════════════════════════════════════════════
+// Každý vzor: pole (generují formulář) + telo (HTML dokumentu,
+// {id} se nahradí <span class="pole" data-p="id">).
+const VZORY = [
+{
+  id:"najem", nazev:"Nájemní smlouva — byt", plus:false,
+  popis:"Pronajímatel, nájemce, nájemné, jistota, doba nájmu.",
+  pole:[
+    ["pronajimatel","Pronajímatel (jméno, datum narození, adresa)","Jan Novák, nar. 1. 1. 1980, Krátká 1, Brno"],
+    ["najemce","Nájemce (jméno, datum narození, adresa)","Petr Svoboda, nar. 2. 2. 1995, Dlouhá 2, Praha"],
+    ["byt","Byt (adresa, číslo, dispozice, podlaží)","Květná 12, Uherský Brod, byt č. 5, 2+kk, 3. NP"],
+    ["najemne","Měsíční nájemné (Kč)","12 000"],
+    ["sluzby","Zálohy na služby (Kč)","3 500"],
+    ["jistota","Jistota / kauce (Kč)","24 000"],
+    ["od","Nájem od","1. 9. 2026"],
+    ["doba","Doba nájmu","neurčitou / určitou do 31. 8. 2027"],
+    ["misto","Místo a datum podpisu","V Brně dne 20. 8. 2026"]
+  ],
+  telo:`<h2>Nájemní smlouva</h2><p class="pod">uzavřená podle § 2235 a násl. zákona č. 89/2012 Sb., občanský zákoník</p>
+  <h4>I. Smluvní strany</h4><p>Pronajímatel: {pronajimatel}</p><p>Nájemce: {najemce}</p>
+  <h4>II. Předmět nájmu</h4><p>Pronajímatel přenechává nájemci k zajištění bytových potřeb byt: {byt}, včetně součástí a příslušenství (dále jen „byt“).</p>
+  <h4>III. Nájemné a služby</h4><p>Nájemné činí {najemne} Kč měsíčně. Zálohy na služby spojené s užíváním bytu činí {sluzby} Kč měsíčně. Nájemné a zálohy jsou splatné vždy do 5. dne příslušného měsíce na účet pronajímatele.</p>
+  <h4>IV. Jistota</h4><p>Nájemce složil pronajímateli jistotu ve výši {jistota} Kč. Pronajímatel jistotu vrátí při skončení nájmu po započtení případných splatných dluhů nájemce.</p>
+  <h4>V. Doba nájmu</h4><p>Nájem se sjednává od {od} na dobu {doba}.</p>
+  <h4>VI. Práva a povinnosti</h4><p>Nájemce užívá byt řádně, hradí běžnou údržbu a drobné opravy. Pronajímatel udržuje byt ve stavu způsobilém k užívání. O předání bytu strany sepíší předávací protokol. Ostatní práva a povinnosti se řídí občanským zákoníkem.</p>
+  <h4>VII. Závěrečná ujednání</h4><p>Smlouva je sepsána ve dvou vyhotoveních, po jednom pro každou stranu. Strany si smlouvu přečetly a s obsahem souhlasí. {misto}</p>
+  <div class="podpisy"><div>pronajímatel</div><div>nájemce</div></div>`
+},
+{
+  id:"podnajem", nazev:"Podnájemní smlouva", plus:true,
+  popis:"Podnájem bytu či pokoje se souhlasem pronajímatele.",
+  pole:[
+    ["najemce","Nájemce (jméno, adresa)","Petr Svoboda, Dlouhá 2, Praha"],
+    ["podnajemce","Podnájemce (jméno, adresa)","Anna Malá, Polní 3, Olomouc"],
+    ["byt","Byt / pokoj (adresa, vymezení)","pokoj č. 2 v bytě Květná 12, Uherský Brod"],
+    ["souhlas","Souhlas pronajímatele (datum/forma)","písemný souhlas ze dne 15. 8. 2026"],
+    ["najemne","Měsíční podnájemné vč. služeb (Kč)","7 500"],
+    ["jistota","Jistota (Kč, případně 0)","7 500"],
+    ["od","Podnájem od","1. 9. 2026"],
+    ["doba","Doba podnájmu","určitou do 30. 6. 2027"],
+    ["misto","Místo a datum podpisu","V Praze dne 25. 8. 2026"]
+  ],
+  telo:`<h2>Podnájemní smlouva</h2><p class="pod">uzavřená podle § 2274 a násl. zákona č. 89/2012 Sb., občanský zákoník</p>
+  <h4>I. Smluvní strany</h4><p>Nájemce: {najemce}</p><p>Podnájemce: {podnajemce}</p>
+  <h4>II. Předmět podnájmu</h4><p>Nájemce přenechává podnájemci do užívání: {byt}. Nájemce prohlašuje, že k podnájmu má {souhlas}.</p>
+  <h4>III. Podnájemné</h4><p>Podnájemné včetně záloh na služby činí {najemne} Kč měsíčně, splatné do 5. dne měsíce. Podnájemce složil jistotu {jistota} Kč, která bude vrácena při skončení podnájmu po vypořádání závazků.</p>
+  <h4>IV. Doba podnájmu</h4><p>Podnájem se sjednává od {od} na dobu {doba}. Podnájem skončí nejpozději spolu s nájmem nájemce.</p>
+  <h4>V. Práva a povinnosti</h4><p>Podnájemce užívá prostor řádně a dodržuje pravidla domu. Nesmí prostor přenechat dalšímu bez souhlasu nájemce. Běžný úklid a drobnou údržbu užívaného prostoru zajišťuje podnájemce.</p>
+  <h4>VI. Závěrečná ujednání</h4><p>Smlouva je sepsána ve dvou vyhotoveních. Strany si smlouvu přečetly a souhlasí. {misto}</p>
+  <div class="podpisy"><div>nájemce</div><div>podnájemce</div></div>`
+},
+{
+  id:"auto", nazev:"Kupní smlouva — automobil", plus:true,
+  popis:"Prodej vozidla mezi lidmi včetně stavu, vad a předání.",
+  pole:[
+    ["prodavajici","Prodávající (jméno, datum narození, adresa)","Karel Dvořák, nar. 3. 3. 1975, Lipová 8, Zlín"],
+    ["kupujici","Kupující (jméno, datum narození, adresa)","Eva Nová, nar. 4. 4. 1990, Růžová 9, Brno"],
+    ["vozidlo","Vozidlo (značka, model, rok)","Škoda Octavia III 1.6 TDI, r. v. 2017"],
+    ["vin","VIN","TMB…"],
+    ["spz","SPZ","3Z9 1234"],
+    ["km","Stav tachometru (km)","148 500"],
+    ["cena","Kupní cena (Kč)","215 000"],
+    ["vady","Známé vady","odřený zadní nárazník, opotřebené zimní pneu"],
+    ["predani","Datum a místo předání","20. 8. 2026 ve Zlíně"],
+    ["misto","Místo a datum podpisu","Ve Zlíně dne 20. 8. 2026"]
+  ],
+  telo:`<h2>Kupní smlouva o převodu vozidla</h2><p class="pod">uzavřená podle § 2079 a násl. zákona č. 89/2012 Sb., občanský zákoník</p>
+  <h4>I. Smluvní strany</h4><p>Prodávající: {prodavajici}</p><p>Kupující: {kupujici}</p>
+  <h4>II. Předmět koupě</h4><p>Prodávající prodává kupujícímu vozidlo {vozidlo}, VIN {vin}, SPZ {spz}, stav tachometru {km} km, se vším příslušenstvím a doklady.</p>
+  <h4>III. Kupní cena</h4><p>Kupní cena činí {cena} Kč a byla uhrazena při podpisu této smlouvy / při předání vozidla. Podpisem strany potvrzují její zaplacení a převzetí.</p>
+  <h4>IV. Stav vozidla</h4><p>Prodávající prohlašuje, že vozidlo nemá právní vady a není předmětem zástavy. Kupující byl seznámen s technickým stavem; známé vady: {vady}. Kupující měl možnost vozidlo prohlédnout a vyzkoušet.</p>
+  <h4>V. Předání a přepis</h4><p>Vozidlo bude předáno {predani} spolu s klíči a doklady. Strany se zavazují poskytnout součinnost k přepisu v registru vozidel do 10 pracovních dnů od předání.</p>
+  <h4>VI. Závěrečná ujednání</h4><p>Nebezpečí škody přechází na kupujícího převzetím vozidla. Smlouva je sepsána ve dvou vyhotoveních. {misto}</p>
+  <div class="podpisy"><div>prodávající</div><div>kupující</div></div>`
+},
+{
+  id:"dpp", nazev:"Dohoda o provedení práce", plus:true,
+  popis:"DPP pro brigády a jednorázové práce do 300 hodin ročně.",
+  pole:[
+    ["zamestnavatel","Zaměstnavatel (název/jméno, IČO, sídlo)","Pekárna U Lípy s.r.o., IČO 12345678, Hlavní 1, Uherský Brod"],
+    ["zamestnanec","Zaměstnanec (jméno, datum narození, adresa)","Tomáš Malý, nar. 5. 5. 2004, Školní 7, Uherský Brod"],
+    ["prace","Sjednaná práce","výpomoc při prodeji a doplňování zboží"],
+    ["rozsah","Rozsah práce","max. 300 hodin v kalendářním roce"],
+    ["odmena","Odměna (Kč/hod)","150"],
+    ["od","Dohoda od","1. 7. 2026"],
+    ["do","Dohoda do","30. 9. 2026"],
+    ["misto","Místo a datum podpisu","V Uherském Brodě dne 25. 6. 2026"]
+  ],
+  telo:`<h2>Dohoda o provedení práce</h2><p class="pod">uzavřená podle § 75 zákona č. 262/2006 Sb., zákoník práce</p>
+  <h4>I. Smluvní strany</h4><p>Zaměstnavatel: {zamestnavatel}</p><p>Zaměstnanec: {zamestnanec}</p>
+  <h4>II. Sjednaná práce</h4><p>Zaměstnanec se zavazuje pro zaměstnavatele vykonávat: {prace}, v rozsahu {rozsah}.</p>
+  <h4>III. Odměna</h4><p>Odměna činí {odmena} Kč za hodinu a je splatná v nejbližším výplatním termínu zaměstnavatele po provedení práce. Z odměny se provádí zákonné srážky dle platných předpisů.</p>
+  <h4>IV. Doba trvání</h4><p>Dohoda se uzavírá na dobu od {od} do {do}. Zrušit ji lze dohodou stran, výpovědí s patnáctidenní lhůtou i bez uvedení důvodu, nebo okamžitým zrušením v zákonných případech.</p>
+  <h4>V. Další ujednání</h4><p>Zaměstnanec bude práci vykonávat osobně a řídit se pokyny zaměstnavatele. Zaměstnavatel zajistí podmínky bezpečnosti a ochrany zdraví při práci a předá zaměstnanci rozvrh práce, je-li vyžadován.</p>
+  <h4>VI. Závěrečná ujednání</h4><p>Dohoda je sepsána ve dvou vyhotoveních, po jednom pro každou stranu. {misto}</p>
+  <div class="podpisy"><div>zaměstnavatel</div><div>zaměstnanec</div></div>`
+},
+{
+  id:"zapujcka", nazev:"Smlouva o zápůjčce", plus:true,
+  popis:"Půjčka peněz mezi lidmi — splátky, splatnost, případný úrok.",
+  pole:[
+    ["zapujcitel","Zapůjčitel (kdo půjčuje — jméno, adresa)","Marie Veselá, Zahradní 4, Kroměříž"],
+    ["vydluzitel","Vydlužitel (kdo si půjčuje — jméno, adresa)","Jakub Černý, Nádražní 6, Přerov"],
+    ["castka","Zapůjčená částka (Kč)","50 000"],
+    ["predani","Způsob a datum předání peněz","převodem na účet dne 1. 8. 2026"],
+    ["urok","Úrok","bez úroku / 5 % ročně"],
+    ["splaceni","Způsob splacení","v 10 měsíčních splátkách po 5 000 Kč, vždy k 15. dni měsíce"],
+    ["splatnost","Konečná splatnost","15. 6. 2027"],
+    ["misto","Místo a datum podpisu","V Kroměříži dne 1. 8. 2026"]
+  ],
+  telo:`<h2>Smlouva o zápůjčce</h2><p class="pod">uzavřená podle § 2390 a násl. zákona č. 89/2012 Sb., občanský zákoník</p>
+  <h4>I. Smluvní strany</h4><p>Zapůjčitel: {zapujcitel}</p><p>Vydlužitel: {vydluzitel}</p>
+  <h4>II. Předmět zápůjčky</h4><p>Zapůjčitel přenechává vydlužiteli částku {castka} Kč. Peníze byly/budou předány: {predani}. Vydlužitel podpisem potvrzuje jejich převzetí, resp. se zavazuje převzetí písemně potvrdit.</p>
+  <h4>III. Úrok</h4><p>Zápůjčka se sjednává {urok}.</p>
+  <h4>IV. Splacení</h4><p>Vydlužitel splatí zápůjčku takto: {splaceni}. Konečná splatnost je {splatnost}. Při prodlení se splátkou delším než 30 dnů se stává splatným celý zůstatek dluhu.</p>
+  <h4>V. Závěrečná ujednání</h4><p>Předčasné splacení je možné kdykoli bez sankce. Smlouva je sepsána ve dvou vyhotoveních. {misto}</p>
+  <div class="podpisy"><div>zapůjčitel</div><div>vydlužitel</div></div>`
+},
+{
+  id:"protokol", nazev:"Předávací protokol — byt", plus:true,
+  popis:"Předání bytu: stavy měřidel, klíče, vybavení, závady.",
+  pole:[
+    ["predavajici","Předávající (jméno)","Jan Novák (pronajímatel)"],
+    ["prebirajici","Přebírající (jméno)","Petr Svoboda (nájemce)"],
+    ["byt","Byt (adresa, číslo)","Květná 12, Uherský Brod, byt č. 5"],
+    ["datum","Datum předání","1. 9. 2026"],
+    ["elektrina","Stav elektroměru (kWh, číslo měřidla)","45 210 kWh, č. 8801"],
+    ["plyn","Stav plynoměru (m³, číslo měřidla)","1 250 m³, č. 4402"],
+    ["voda","Stav vodoměru SV/TV (m³)","SV 320 / TV 210"],
+    ["klice","Předané klíče (počet, od čeho)","2× byt, 1× vchod, 1× schránka"],
+    ["vybaveni","Vybavení bytu","kuchyňská linka vč. spotřebičů, vestavěná skříň, pračka"],
+    ["zavady","Zjištěné závady","drobné oděrky na parketách v obývacím pokoji"]
+  ],
+  telo:`<h2>Předávací protokol k bytu</h2><p class="pod">příloha nájemní smlouvy</p>
+  <h4>I. Strany a byt</h4><p>Předávající: {predavajici}</p><p>Přebírající: {prebirajici}</p><p>Byt: {byt} · Datum předání: {datum}</p>
+  <h4>II. Stavy měřidel ke dni předání</h4><p>Elektřina: {elektrina}</p><p>Plyn: {plyn}</p><p>Voda: {voda}</p>
+  <h4>III. Klíče a vybavení</h4><p>Předané klíče: {klice}</p><p>Vybavení bytu: {vybaveni}</p>
+  <h4>IV. Stav bytu a závady</h4><p>Byt je předán ve stavu způsobilém k užívání. Zjištěné závady: {zavady}. Strany se dohodly, že uvedené závady nebudou při skončení nájmu přičítány k tíži přebírajícího.</p>
+  <h4>V. Prohlášení</h4><p>Strany shodně prohlašují, že uvedené údaje odpovídají skutečnosti ke dni předání. Protokol je sepsán ve dvou vyhotoveních.</p>
+  <div class="podpisy"><div>předávající</div><div>přebírající</div></div>`
+}
+];
+
+// ═══ Vykreslení ═══════════════════════════════════════════════════
+const jePlusUziv=()=>document.body.classList.contains("plus");
+const esc=(s)=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function seznam(){
+  document.getElementById("mrizka").innerHTML=VZORY.map(v=>`
+    <div class="vzor">
+      <span class="${v.plus?"zamek":"zdarma"}">${v.plus?"Plus":"Zdarma"}</span>
+      <h3>${v.nazev}</h3><p>${v.popis}</p>
+      <button class="btn" onclick="otevri('${v.id}')">Vyplnit a vytisknout</button>
+    </div>`).join("");
+}
+
+function ukaz(id){["seznam","editor","zamceno"].forEach(s=>document.getElementById(s).classList.toggle("hidden",s!==id));window.scrollTo(0,0);}
+function zpet(){ukaz("seznam");}
+
+function otevri(id){
+  const v=VZORY.find(x=>x.id===id);
+  if(v.plus&&!jePlusUziv()){ukaz("zamceno");return;}
+  document.getElementById("ed-nazev").textContent=v.nazev;
+  document.getElementById("ed-form").innerHTML=
+    v.pole.map(([pid,label,ph])=>`<label for="f-${pid}">${label}</label><input id="f-${pid}" data-p="${pid}" placeholder="${esc(ph)}" />`).join("")
+    +`<button class="btn" style="width:100%;margin-top:var(--s3)" onclick="window.print()">🖨 Vytisknout</button>
+      <button class="btn ghost" style="width:100%;margin-top:8px" onclick="zpet()">← Zpět na vzory</button>`;
+  document.getElementById("ed-nahled").innerHTML=
+    v.telo.replace(/\{(\w+)\}/g,(_,p)=>`<span class="pole" data-v="${p}"></span>`);
+  document.querySelectorAll("#ed-form [data-p]").forEach(inp=>{
+    inp.addEventListener("input",()=>{
+      document.querySelectorAll(`#ed-nahled [data-v="${inp.dataset.p}"]`).forEach(el=>el.textContent=inp.value);
+    });
+  });
+  ukaz("editor");
+}
+
+seznam();
+</script>
+</body>
+</html>

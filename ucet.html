@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Účet — Srozuměno</title>
+<meta name="robots" content="noindex" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/styl.css" />
+</head>
+<body>
+
+<header class="hlava">
+  <a class="logo" href="/">Srozuměno<b>.</b></a>
+  <nav>
+    <a href="/kontrola">Kontrola</a>
+    <a href="/vzory">Vzory smluv</a>
+    <a href="/rady">Rady</a>
+    <a href="/plus">Plus</a>
+    <a href="/ucet" aria-current="page">Účet</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Tvůj účet</h1>
+
+  <div id="hlaska" class="hidden card" style="margin-bottom:var(--s3)"><p id="hlaska-text" style="color:var(--ink-soft);line-height:1.6"></p></div>
+
+  <!-- Nepřihlášený -->
+  <section id="s-login" class="hidden">
+    <div class="card">
+      <p class="lede" style="margin-bottom:var(--s2)">Přihlášení bez hesla: zadej e-mail a pošleme ti přihlašovací odkaz.</p>
+      <label for="email" style="font-size:12.5px;color:var(--ink-soft)">E-mail</label>
+      <input id="email" type="email" placeholder="tvuj@email.cz" style="width:100%;border:1px solid var(--line);border-radius:6px;padding:11px 12px;font-size:15px;font-family:inherit;margin:6px 0 var(--s2)" />
+      <button class="btn" onclick="zadost()">Poslat přihlašovací odkaz</button>
+      <p id="test-odkaz" class="hint hidden"></p>
+    </div>
+  </section>
+
+  <!-- Přihlášený -->
+  <section id="s-ucet" class="hidden">
+    <div class="card">
+      <div class="eyebrow" style="margin-top:0">Přihlášen</div>
+      <p style="font-weight:600;font-size:17px" id="u-email"></p>
+      <div style="margin-top:var(--s2);padding-top:var(--s2);border-top:1px solid var(--line)">
+        <div class="eyebrow" style="margin-top:0">Předplatné</div>
+        <p id="u-plus" style="line-height:1.6"></p>
+        <p id="u-akce" style="margin-top:var(--s2);display:flex;gap:10px;flex-wrap:wrap"></p>
+      </div>
+    </div>
+    <p style="margin-top:var(--s2)"><button class="btn ghost" onclick="odhlasit()">Odhlásit se</button></p>
+  </section>
+</main>
+
+<footer class="pata">
+  <div class="odkazy"><a href="/">Domů</a><a href="/kontrola">Kontrola</a><a href="/plus">Plus</a><a href="/podminky">Podmínky</a><a href="/soukromi">Soukromí</a></div>
+  © <span data-rok></span> Srozuměno
+</footer>
+
+<script src="/assets/spolecne.js"></script>
+<script>
+const q=new URLSearchParams(location.search);
+const HLASKY={aktivni:"🎉 Platba proběhla — Plus je aktivní. Reklamy i limity jsou pryč.",prihlasen:"Přihlášení proběhlo úspěšně.",neplatny:"Přihlašovací odkaz je neplatný nebo vypršel (platí 15 minut). Nech si poslat nový."};
+if(HLASKY[q.get("stav")]) hlaska(HLASKY[q.get("stav")]);
+
+function hlaska(t){document.getElementById("hlaska-text").textContent=t;document.getElementById("hlaska").classList.remove("hidden");}
+
+async function nactiStav(){
+  try{
+    const r=await fetch("/api/ucet?akce=stav");const d=await r.json();
+    document.getElementById("s-login").classList.toggle("hidden",d.prihlasen||d.plus);
+    document.getElementById("s-ucet").classList.toggle("hidden",!(d.prihlasen||d.plus));
+    if(d.prihlasen||d.plus){
+      document.getElementById("u-email").textContent=d.email||"—";
+      if(d.plus){
+        const doKdy=d.plusDo?new Date(d.plusDo).toLocaleDateString("cs-CZ"):"";
+        document.getElementById("u-plus").innerHTML=`✓ <b>Srozuměno Plus je aktivní</b>${doKdy?` — platí do ${doKdy}`:""}. Kontroly bez limitu, bez reklam, všechny vzory odemčené.`;
+        document.getElementById("u-akce").innerHTML=`<button class="btn ghost" onclick="zrusit()">Zrušit předplatné</button>`;
+      }else{
+        document.getElementById("u-plus").textContent="Používáš verzi Zdarma (1 kontrola denně, s reklamou).";
+        document.getElementById("u-akce").innerHTML=`<a class="btn" href="/plus">Aktivovat Plus</a>`;
+      }
+    }
+  }catch(e){hlaska("Stav účtu se nepodařilo načíst. Obnov stránku.");}
+}
+
+async function zadost(){
+  const email=document.getElementById("email").value.trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){hlaska("Zadej platný e-mail.");return;}
+  const r=await fetch("/api/ucet?akce=zadost",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({akce:"zadost",email})});
+  const d=await r.json();
+  hlaska(d.zprava||d.chyba||"Hotovo.");
+  if(d.testovaci&&d.odkaz){const el=document.getElementById("test-odkaz");el.classList.remove("hidden");el.innerHTML=`Testovací režim: <a href="${d.odkaz}">přihlásit se tímto odkazem</a>`;}
+}
+
+async function zrusit(){
+  if(!confirm("Opravdu zrušit předplatné Plus?"))return;
+  const r=await fetch("/api/platby?akce=zrusit",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({akce:"zrusit"})});
+  const d=await r.json();hlaska(d.zprava||d.chyba||"Hotovo.");nactiStav();
+}
+
+async function odhlasit(){
+  await fetch("/api/ucet?akce=odhlasit",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({akce:"odhlasit"})});
+  location.href="/ucet";
+}
+
+nactiStav();
+</script>
+</body>
+</html>
